@@ -20,6 +20,7 @@ const newProductData = [
     productText: "Gold Earring",
     isFavorite: false,
     ProductId: "BA7",
+    Productcategory:""
   },
   {
     id: 4,
@@ -27,6 +28,7 @@ const newProductData = [
     productText: "Gold Ring",
     isFavorite: false,
     ProductId: "BA7",
+    Productcategory:""
   },
   {
     id: 1,
@@ -34,6 +36,7 @@ const newProductData = [
     productText: "Gold Bangle",
     isFavorite: false,
     ProductId: "BA7",
+    Productcategory:""
   },
   {
     id: 5,
@@ -41,6 +44,7 @@ const newProductData = [
     productText: "Gold Ring",
     isFavorite: false,
     ProductId: "BA7",
+    Productcategory:""
   },
   {
     id: 8,
@@ -48,6 +52,7 @@ const newProductData = [
     productText: "Gold Necklace",
     isFavorite: false,
     ProductId: "BA7",
+    Productcategory:""
   },
   {
     id: 2,
@@ -55,6 +60,7 @@ const newProductData = [
     productText: "Gold Earring",
     isFavorite: false,
     ProductId: "BA7",
+    Productcategory:""
   },
   {
     id: 7,
@@ -62,6 +68,7 @@ const newProductData = [
     productText: "Gold Bangle",
     isFavorite: false,
     ProductId: "BA7",
+    Productcategory:""
   },
 ];
 const screenWidth = Dimensions.get("window").width;

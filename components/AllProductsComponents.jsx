@@ -18,6 +18,7 @@ const initialProducts = [
     image: require("../assets/images/earring_1.webp"),
     isFavorite: false,
     ProductId: "ER1",
+    Productcategory:"Earrings"
   },
   {
     id: "2",
@@ -25,6 +26,7 @@ const initialProducts = [
     image: require("../assets/images/ring_2.png"),
     isFavorite: false,
     ProductId: "RI1",
+    Productcategory:"Rings"
   },
   {
     id: "3",
@@ -32,6 +34,7 @@ const initialProducts = [
     image: require("../assets/images/earring_2.png"),
     isFavorite: false,
     ProductId: "ER2",
+    Productcategory:"Earrings"
   },
   {
     id: "4",
@@ -39,6 +42,7 @@ const initialProducts = [
     image: require("../assets/images/categoryImage2.jpg"),
     isFavorite: false,
     ProductId: "BA1",
+    Productcategory:"Bangles"
   },
   {
     id: "5",
@@ -46,6 +50,7 @@ const initialProducts = [
     image: require("../assets/images/mangtikka_1.png"),
     isFavorite: false,
     ProductId: "MG1",
+    Productcategory:"Mangtikkas"
   },
   {
     id: "6",
@@ -53,6 +58,7 @@ const initialProducts = [
     image: require("../assets/images/necklace_1.png"),
     isFavorite: false,
     ProductId: "NC1",
+    Productcategory:"Necklace"
   },
   {
     id: "7",
@@ -60,6 +66,7 @@ const initialProducts = [
     image: require("../assets/images/ring_1.png"),
     isFavorite: false,
     ProductId: "RI2",
+    Productcategory:"Rings"
   },
   {
     id: "8",
@@ -67,6 +74,7 @@ const initialProducts = [
     image: require("../assets/images/bangle_2.jpg"),
     isFavorite: false,
     ProductId: "BA2",
+    Productcategory:"Bangles"
   },
   {
     id: "9",
@@ -74,6 +82,7 @@ const initialProducts = [
     image: require("../assets/images/bangle_3.png"),
     isFavorite: false,
     ProductId: "BA3",
+    Productcategory:"Bangles"
   },
   {
     id: "10",
@@ -81,6 +90,7 @@ const initialProducts = [
     image: require("../assets/images/mangtikka_2.png"),
     isFavorite: false,
     ProductId: "MG2",
+    Productcategory:"Mangtikkas"
   },
   {
     id: "11",
@@ -88,6 +98,7 @@ const initialProducts = [
     image: require("../assets/images/necklace_2.png"),
     isFavorite: false,
     ProductId: "NC2",
+    Productcategory:"Necklace"
   },
   {
     id: "12",
@@ -95,6 +106,7 @@ const initialProducts = [
     image: require("../assets/images/earring_2.png"),
     isFavorite: false,
     ProductId: "ER3",
+    Productcategory:"Earrings"
   },
   {
     id: "13",
@@ -102,6 +114,7 @@ const initialProducts = [
     image: require("../assets/images/earring_1.webp"),
     isFavorite: false,
     ProductId: "ER4",
+    Productcategory:"Earrings"
   },
   {
     id: "14",
@@ -109,6 +122,7 @@ const initialProducts = [
     image: require("../assets/images/ring_2.png"),
     isFavorite: false,
     ProductId: "RI3",
+    Productcategory:"Rings"
   },
   {
     id: "15",
@@ -116,6 +130,7 @@ const initialProducts = [
     image: require("../assets/images/earring_2.png"),
     isFavorite: false,
     ProductId: "ER5",
+    Productcategory:"Earrings"
   },
   {
     id: "16",
@@ -123,6 +138,7 @@ const initialProducts = [
     image: require("../assets/images/categoryImage2.jpg"),
     isFavorite: false,
     ProductId: "BA4",
+    Productcategory:"Bangles"
   },
   {
     id: "17",
@@ -130,6 +146,7 @@ const initialProducts = [
     image: require("../assets/images/mangtikka_1.png"),
     isFavorite: false,
     ProductId: "MG3",
+    Productcategory:"Mangtikkas"
   },
   {
     id: "18",
@@ -137,6 +154,7 @@ const initialProducts = [
     image: require("../assets/images/necklace_1.png"),
     isFavorite: false,
     ProductId: "NC3",
+    Productcategory:"Necklace"
   },
   {
     id: "19",
@@ -144,6 +162,7 @@ const initialProducts = [
     image: require("../assets/images/ring_1.png"),
     isFavorite: false,
     ProductId: "RI4",
+    Productcategory:"Rings"
   },
   {
     id: "20",
@@ -151,6 +170,7 @@ const initialProducts = [
     image: require("../assets/images/bangle_2.jpg"),
     isFavorite: false,
     ProductId: "BA5",
+    Productcategory:"Bangles"
   },
   {
     id: "21",
@@ -158,6 +178,7 @@ const initialProducts = [
     image: require("../assets/images/bangle_3.png"),
     isFavorite: false,
     ProductId: "BA6",
+    Productcategory:"Bangles"
   },
   {
     id: "22",
@@ -165,6 +186,7 @@ const initialProducts = [
     image: require("../assets/images/mangtikka_2.png"),
     isFavorite: false,
     ProductId: "MG4",
+    Productcategory:"Mangtikkas"
   },
   {
     id: "23",
@@ -172,6 +194,7 @@ const initialProducts = [
     image: require("../assets/images/necklace_2.png"),
     isFavorite: false,
     ProductId: "NC4",
+    Productcategory:"Necklace"
   },
   {
     id: "24",
@@ -179,12 +202,12 @@ const initialProducts = [
     image: require("../assets/images/earring_2.png"),
     isFavorite: false,
     ProductId: "ER5",
+    Productcategory:"Earrings"
   },
 ];
 
-const AllProductsComponents = () => {
+const AllProductsComponents = ({ selectedCategory }) => {
   const [products, setProducts] = useState(initialProducts);
-
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -207,41 +230,40 @@ const AllProductsComponents = () => {
     setProducts(updatedProducts);
   };
 
-  const renderItem = ({ item }) => {
-    return (
-      <View style={styles.card}>
-        <View style={styles.imageWrapper}>
-          <TouchableOpacity onPress={() => openModal(item.image)}>
-            <Image
-              source={item.image}
-              style={styles.image}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
-          {item.isFavorite && (
-            <View style={styles.productIdBadge}>
-              <Text style={styles.productIdText}>{item.ProductId}</Text>
-            </View>
-          )}
-        </View>
-        <View style={styles.footer}>
-          <Text style={styles.name}>{item.name}</Text>
-          <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
-            <Ionicons
-              name={item.isFavorite ? "heart" : "heart-outline"}
-              size={20}
-              color={item.isFavorite ? "red" : "#999"}
-            />
-          </TouchableOpacity>
-        </View>
+  const filteredProducts =
+    selectedCategory === 'All'
+      ? products
+      : products.filter((product) => product.Productcategory === selectedCategory);
+
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <View style={styles.imageWrapper}>
+        <TouchableOpacity onPress={() => openModal(item.image)}>
+          <Image source={item.image} style={styles.image} resizeMode="cover" />
+        </TouchableOpacity>
+        {item.isFavorite && (
+          <View style={styles.productIdBadge}>
+            <Text style={styles.productIdText}>{item.ProductId}</Text>
+          </View>
+        )}
       </View>
-    );
-  };
+      <View style={styles.footer}>
+        <Text style={styles.name}>{item.name}</Text>
+        <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
+          <Ionicons
+            name={item.isFavorite ? 'heart' : 'heart-outline'}
+            size={20}
+            color={item.isFavorite ? 'red' : '#999'}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   return (
-    <View>
+    <View style={{flex:1}}>
       <FlatList
-        data={products}
+        data={filteredProducts}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         numColumns={2}
@@ -254,8 +276,8 @@ const AllProductsComponents = () => {
         onRequestClose={closeModal}
       >
         <ImageViewer
-          imageUrls={[{props:{source:selectedImage}}]}
-          onSwipeDown={() => setIsModalVisible(false)}
+          imageUrls={[{ props: { source: selectedImage } }]}
+          onSwipeDown={closeModal}
           enableSwipeDown={true}
         />
       </Modal>
@@ -263,13 +285,14 @@ const AllProductsComponents = () => {
   );
 };
 
+
 export default AllProductsComponents;
 
 const styles = StyleSheet.create({
   container: {
     padding: 10,
-    backgroundColor: "#ffffff",
-    paddingBottom: 60,
+    backgroundColor: "#ffffff", 
+    paddingBottom:160   
   },
   card: {
     flex: 1,

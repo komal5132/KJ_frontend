@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router'
 import React, { useState } from 'react'
 import {
   View,
@@ -8,10 +9,24 @@ import {
   FlatList,
   Modal,
   Pressable,
-  Dimensions
+  Dimensions,
+  ImageSourcePropType,
+  ListRenderItemInfo
 } from 'react-native'
 
-const CategoriesData = [
+type CategoryType = {
+  id: number
+  categoryName: string
+  categoryImage: ImageSourcePropType | undefined
+}
+
+type Props = {
+  selectedCategory: string
+  onCategorySelect: (category: string) => void  
+}
+
+const CategoriesData : CategoryType[]  = [
+  
   {
     id: 1,
     categoryName: 'Rings',
@@ -29,37 +44,41 @@ const CategoriesData = [
   },
   {
     id: 4,
-    categoryName: 'Bracelet',
-    categoryImage: require('../assets/images/categoryImage4.png')
+    categoryName: 'Mangtikkas',
+    categoryImage: require('../assets/images/mangtikka_1.png')
   },
   {
     id: 5,
     categoryName: 'Necklace',
     categoryImage: require('../assets/images/categoryImage5.jpg')
-  },
-  {
-    id: 6,
-    categoryName: 'Brooches',
-    categoryImage: require('../assets/images/categoryImage6.png')
-  },
-  {
-    id: 7,
-    categoryName: 'Anklets',
-    categoryImage: require('../assets/images/categoryImage7.jpg')
-  }
+  },  
 ]
 
 const screenWidth = Dimensions.get('window').width
 
-const CategoriesComponent = () => {
-  const [modalVisible, setModalVisible] = useState(false)
+const CategoriesComponent:React.FC<Props> = ({ selectedCategory, onCategorySelect}) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const router = useRouter()
 
-  const handleRender = ({ item }: { item: typeof CategoriesData[0] }) => (
-    <TouchableOpacity style={styles.category}>
+  const handleRender = ({ item }:ListRenderItemInfo<CategoryType>) => (
+    <TouchableOpacity
+      style={[
+        styles.category,
+        selectedCategory === item.categoryName && { borderBottomWidth: 2, borderBottomColor: 'green' }
+      ]}
+      onPress={() => {
+        setModalVisible(false);
+        onCategorySelect(item.categoryName);
+        router.push({
+          pathname:'/Products',
+          params:{selectedCategory:item.categoryName}
+        })
+      }}
+    >
       <Image style={styles.catImage} source={item.categoryImage} />
       <Text style={styles.catText}>{item.categoryName}</Text>
     </TouchableOpacity>
-  )
+  );
 
   return (
     <View style={styles.container}>
@@ -71,14 +90,13 @@ const CategoriesComponent = () => {
       </View>
 
       <FlatList
-        data={CategoriesData}
+        data={[{ id: 0, categoryName: 'All', categoryImage: require('../assets/images/kundan_type.jpg') }, ...CategoriesData]}
         renderItem={handleRender}
-        keyExtractor={item => `${item.id}`}
+        keyExtractor={(item) => `${item.id}`}
         horizontal
         showsHorizontalScrollIndicator={false}
       />
 
-      {/* Overlay Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={styles.overlayContainer}>
           <View style={styles.modalContent}>
@@ -92,7 +110,7 @@ const CategoriesComponent = () => {
             <FlatList
               data={CategoriesData}
               renderItem={handleRender}
-              keyExtractor={item => `${item.id}`}
+              keyExtractor={(item) => `${item.id}`}
               numColumns={3}
               columnWrapperStyle={{ justifyContent: 'space-between' }}
               contentContainerStyle={{ paddingBottom: 20 }}
@@ -102,8 +120,9 @@ const CategoriesComponent = () => {
         </View>
       </Modal>
     </View>
-  )
-}
+  );
+};
+
 
 const styles = StyleSheet.create({
   container: {
