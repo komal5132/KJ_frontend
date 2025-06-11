@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 import {
   View,
   Text,
@@ -15,9 +16,9 @@ import {
 } from 'react-native'
 
 type CategoryType = {
-  id: number
-  categoryName: string
-  categoryImage: ImageSourcePropType | undefined
+  _id: string | number
+  name: string
+  image: string | number
 }
 
 type Props = {
@@ -25,60 +26,51 @@ type Props = {
   onCategorySelect: (category: string) => void  
 }
 
-const CategoriesData : CategoryType[]  = [
-  
-  {
-    id: 1,
-    categoryName: 'Rings',
-    categoryImage: require('../assets/images/categoryImage1.png')
-  },
-  {
-    id: 2,
-    categoryName: 'Bangles',
-    categoryImage: require('../assets/images/categoryImage2.jpg')
-  },
-  {
-    id: 3,
-    categoryName: 'Earrings',
-    categoryImage: require('../assets/images/categoryImage3.jpg')
-  },
-  {
-    id: 4,
-    categoryName: 'Mangtikkas',
-    categoryImage: require('../assets/images/mangtikka_1.png')
-  },
-  {
-    id: 5,
-    categoryName: 'Necklace',
-    categoryImage: require('../assets/images/categoryImage5.jpg')
-  },  
-]
-
 const screenWidth = Dimensions.get('window').width
 
-const CategoriesComponent:React.FC<Props> = ({ selectedCategory, onCategorySelect}) => {
-  const [modalVisible, setModalVisible] = useState(false);
+const CategoriesComponent: React.FC<Props> = ({ selectedCategory, onCategorySelect }) => {
+  const [modalVisible, setModalVisible] = useState(false)
+  const [categories, setCategories] = useState<CategoryType[]>([])
+  const [loading, setLoading] = useState(true)
+
   const router = useRouter()
 
-  const handleRender = ({ item }:ListRenderItemInfo<CategoryType>) => (
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.post('http://192.168.31.4:8000/api/product/getcategory')
+        console.log("res from backend",res.data.categories)        
+        setCategories(res.data.categories || [])            
+      } catch (error) {
+        console.error('Failed to fetch categories:', error)
+      }
+      finally{
+        setLoading(false)
+      }
+    }
+
+    fetchCategories()
+  }, [])
+
+  const handleRender = ({ item }: ListRenderItemInfo<CategoryType>) => (
     <TouchableOpacity
       style={[
         styles.category,
-        selectedCategory === item.categoryName && { borderBottomWidth: 2, borderBottomColor: 'green' }
+        selectedCategory === item.name && { borderBottomWidth: 2, borderBottomColor: 'green' }
       ]}
       onPress={() => {
-        setModalVisible(false);
-        onCategorySelect(item.categoryName);
+        setModalVisible(false)
+        onCategorySelect(item.name)
         router.push({
-          pathname:'/Products',
-          params:{selectedCategory:item.categoryName}
+          pathname: '/Products',
+          params: { selectedCategory: item.name }
         })
       }}
     >
-      <Image style={styles.catImage} source={item.categoryImage} />
-      <Text style={styles.catText}>{item.categoryName}</Text>
+      <Image style={styles.catImage} source={typeof item.image === 'string' ? {uri : `http://192.168.31.4:8000/image/${item.image}`}:item.image} />
+      <Text style={styles.catText}>{item.name}</Text>      
     </TouchableOpacity>
-  );
+  )
 
   return (
     <View style={styles.container}>
@@ -90,9 +82,9 @@ const CategoriesComponent:React.FC<Props> = ({ selectedCategory, onCategorySelec
       </View>
 
       <FlatList
-        data={[{ id: 0, categoryName: 'All', categoryImage: require('../assets/images/kundan_type.jpg') }, ...CategoriesData]}
+        data={[{ _id: 0, name: 'All', image: require('../assets/images/kundan_type.jpg') }, ...categories]}
         renderItem={handleRender}
-        keyExtractor={(item) => `${item.id}`}
+        keyExtractor={(item) => `${item._id}`}
         horizontal
         showsHorizontalScrollIndicator={false}
       />
@@ -108,9 +100,9 @@ const CategoriesComponent:React.FC<Props> = ({ selectedCategory, onCategorySelec
             </View>
 
             <FlatList
-              data={CategoriesData}
+              data={categories}
               renderItem={handleRender}
-              keyExtractor={(item) => `${item.id}`}
+              keyExtractor={(item) => `${item._id}`}
               numColumns={3}
               columnWrapperStyle={{ justifyContent: 'space-between' }}
               contentContainerStyle={{ paddingBottom: 20 }}
@@ -120,75 +112,74 @@ const CategoriesComponent:React.FC<Props> = ({ selectedCategory, onCategorySelec
         </View>
       </Modal>
     </View>
-  );
-};
-
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 0,
     paddingHorizontal: 16,
-    backgroundColor: '#fff',        
+    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,    
+    marginBottom: 12,
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',    
+    fontWeight: 'bold',
   },
   seeAll: {
     fontSize: 14,
     color: 'green',
-    fontWeight: '600',    
+    fontWeight: '600',
   },
   category: {
     alignItems: 'center',
     marginBottom: 20,
-    width: (screenWidth - 80) / 3, // adjust spacing        
+    width: (screenWidth - 80) / 3,
   },
   catImage: {
     width: 60,
     height: 60,
     borderRadius: 30,
     marginBottom: 6,
-    resizeMode: 'cover'
+    resizeMode: 'cover',
   },
   catText: {
     fontSize: 13,
-    color: '#333'
+    color: '#333',
   },
   overlayContainer: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   modalContent: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
-    maxHeight: '80%'
+    maxHeight: '80%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12
+    marginBottom: 12,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000'
+    color: '#000',
   },
   closeText: {
     fontSize: 14,
     color: 'red',
-    fontWeight: '600'
-  }
+    fontWeight: '600',
+  },
 })
 
 export default CategoriesComponent

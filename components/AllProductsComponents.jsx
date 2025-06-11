@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,286 +7,107 @@ import {
   FlatList,
   TouchableOpacity,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
 import ImageViewer from "react-native-image-zoom-viewer";
 
-const initialProducts = [
-  {
-    id: "1",
-    name: "Malabar Earring",
-    image: require("../assets/images/earring_1.webp"),
-    isFavorite: false,
-    ProductId: "ER1",
-    Productcategory:"Earrings"
-  },
-  {
-    id: "2",
-    name: "Malabar Ring",
-    image: require("../assets/images/ring_2.png"),
-    isFavorite: false,
-    ProductId: "RI1",
-    Productcategory:"Rings"
-  },
-  {
-    id: "3",
-    name: " Earring",
-    image: require("../assets/images/earring_2.png"),
-    isFavorite: false,
-    ProductId: "ER2",
-    Productcategory:"Earrings"
-  },
-  {
-    id: "4",
-    name: "Gold Bangle",
-    image: require("../assets/images/categoryImage2.jpg"),
-    isFavorite: false,
-    ProductId: "BA1",
-    Productcategory:"Bangles"
-  },
-  {
-    id: "5",
-    name: "Gold Mangtikka",
-    image: require("../assets/images/mangtikka_1.png"),
-    isFavorite: false,
-    ProductId: "MG1",
-    Productcategory:"Mangtikkas"
-  },
-  {
-    id: "6",
-    name: "Necklace",
-    image: require("../assets/images/necklace_1.png"),
-    isFavorite: false,
-    ProductId: "NC1",
-    Productcategory:"Necklace"
-  },
-  {
-    id: "7",
-    name: "Ring",
-    image: require("../assets/images/ring_1.png"),
-    isFavorite: false,
-    ProductId: "RI2",
-    Productcategory:"Rings"
-  },
-  {
-    id: "8",
-    name: "Gold Bangle",
-    image: require("../assets/images/bangle_2.jpg"),
-    isFavorite: false,
-    ProductId: "BA2",
-    Productcategory:"Bangles"
-  },
-  {
-    id: "9",
-    name: "Gold Bangle",
-    image: require("../assets/images/bangle_3.png"),
-    isFavorite: false,
-    ProductId: "BA3",
-    Productcategory:"Bangles"
-  },
-  {
-    id: "10",
-    name: "Mangtikka",
-    image: require("../assets/images/mangtikka_2.png"),
-    isFavorite: false,
-    ProductId: "MG2",
-    Productcategory:"Mangtikkas"
-  },
-  {
-    id: "11",
-    name: "Necklace",
-    image: require("../assets/images/necklace_2.png"),
-    isFavorite: false,
-    ProductId: "NC2",
-    Productcategory:"Necklace"
-  },
-  {
-    id: "12",
-    name: " Earring",
-    image: require("../assets/images/earring_2.png"),
-    isFavorite: false,
-    ProductId: "ER3",
-    Productcategory:"Earrings"
-  },
-  {
-    id: "13",
-    name: "Malabar Earring",
-    image: require("../assets/images/earring_1.webp"),
-    isFavorite: false,
-    ProductId: "ER4",
-    Productcategory:"Earrings"
-  },
-  {
-    id: "14",
-    name: "Malabar Ring",
-    image: require("../assets/images/ring_2.png"),
-    isFavorite: false,
-    ProductId: "RI3",
-    Productcategory:"Rings"
-  },
-  {
-    id: "15",
-    name: " Earring",
-    image: require("../assets/images/earring_2.png"),
-    isFavorite: false,
-    ProductId: "ER5",
-    Productcategory:"Earrings"
-  },
-  {
-    id: "16",
-    name: "Gold Bangle",
-    image: require("../assets/images/categoryImage2.jpg"),
-    isFavorite: false,
-    ProductId: "BA4",
-    Productcategory:"Bangles"
-  },
-  {
-    id: "17",
-    name: "Gold Mangtikka",
-    image: require("../assets/images/mangtikka_1.png"),
-    isFavorite: false,
-    ProductId: "MG3",
-    Productcategory:"Mangtikkas"
-  },
-  {
-    id: "18",
-    name: "Necklace",
-    image: require("../assets/images/necklace_1.png"),
-    isFavorite: false,
-    ProductId: "NC3",
-    Productcategory:"Necklace"
-  },
-  {
-    id: "19",
-    name: "Ring",
-    image: require("../assets/images/ring_1.png"),
-    isFavorite: false,
-    ProductId: "RI4",
-    Productcategory:"Rings"
-  },
-  {
-    id: "20",
-    name: "Gold Bangle",
-    image: require("../assets/images/bangle_2.jpg"),
-    isFavorite: false,
-    ProductId: "BA5",
-    Productcategory:"Bangles"
-  },
-  {
-    id: "21",
-    name: "Gold Bangle",
-    image: require("../assets/images/bangle_3.png"),
-    isFavorite: false,
-    ProductId: "BA6",
-    Productcategory:"Bangles"
-  },
-  {
-    id: "22",
-    name: "Mangtikka",
-    image: require("../assets/images/mangtikka_2.png"),
-    isFavorite: false,
-    ProductId: "MG4",
-    Productcategory:"Mangtikkas"
-  },
-  {
-    id: "23",
-    name: "Necklace",
-    image: require("../assets/images/necklace_2.png"),
-    isFavorite: false,
-    ProductId: "NC4",
-    Productcategory:"Necklace"
-  },
-  {
-    id: "24",
-    name: " Earring",
-    image: require("../assets/images/earring_2.png"),
-    isFavorite: false,
-    ProductId: "ER5",
-    Productcategory:"Earrings"
-  },
-];
+const BACKEND_URL = "http://192.168.31.4:8000"; // Use your local IP or ngrok if needed
 
 const AllProductsComponents = ({ selectedCategory }) => {
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const openModal = (image) => {
-    setSelectedImage(image);
+  useEffect(() => {
+  const fetchProducts = async () => {
+    setLoading(true); // optional: show loader when category changes
+    try {
+      const res = await axios.post(`${BACKEND_URL}/api/product/listofproducts`);
+      console.log("data of products", res.data);
+      setProducts(res.data.products || []);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProducts();
+  console.log("selected prodcuts",selectedCategory)
+}, [selectedCategory]); // ✅ Re-fetch on category change
+
+
+  const openModal = (imageUri) => {
+    setSelectedImage({ url: imageUri });
     setIsModalVisible(true);
   };
 
-  const closeModal = () => {
-    setSelectedImage(null);
-    setIsModalVisible(false);
-  };
-
   const toggleFavorite = (id) => {
-    const updatedProducts = products.map((product) =>
-      product.id === id
-        ? { ...product, isFavorite: !product.isFavorite }
-        : product
+    const updated = products.map((p) =>
+      p._id === id ? { ...p, isFavorite: !p.isFavorite } : p
     );
-    setProducts(updatedProducts);
+    setProducts(updated);
   };
 
   const filteredProducts =
-    selectedCategory === 'All'
+    selectedCategory === "All"
       ? products
-      : products.filter((product) => product.Productcategory === selectedCategory);
+      : products.filter((p) => p.category === selectedCategory);
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <View style={styles.imageWrapper}>
-        <TouchableOpacity onPress={() => openModal(item.image)}>
-          <Image source={item.image} style={styles.image} resizeMode="cover" />
+        <TouchableOpacity onPress={() => openModal(`${BACKEND_URL}/image/${item.image}`)}>
+          <Image
+            source={{ uri: `${BACKEND_URL}/image/${item.image}` }}
+            style={styles.image}
+            resizeMode="cover"
+          />
         </TouchableOpacity>
         {item.isFavorite && (
           <View style={styles.productIdBadge}>
-            <Text style={styles.productIdText}>{item.ProductId}</Text>
+            <Text style={styles.productIdText}>{item.code}</Text>
           </View>
         )}
       </View>
       <View style={styles.footer}>
         <Text style={styles.name}>{item.name}</Text>
-        <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
+        <TouchableOpacity onPress={() => toggleFavorite(item._id)}>
           <Ionicons
-            name={item.isFavorite ? 'heart' : 'heart-outline'}
+            name={item.isFavorite ? "heart" : "heart-outline"}
             size={20}
-            color={item.isFavorite ? 'red' : '#999'}
+            color={item.isFavorite ? "red" : "#999"}
           />
         </TouchableOpacity>
       </View>
     </View>
   );
 
+  if (loading) {
+    return <ActivityIndicator size="large" color="green" style={{ flex: 1 }} />;
+  }
+
   return (
-    <View style={{flex:1}}>
+    <View style={{ flex: 1 }}>
       <FlatList
         data={filteredProducts}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         numColumns={2}
         contentContainerStyle={styles.container}
       />
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={closeModal}
-      >
-        <ImageViewer
-          imageUrls={[{ props: { source: selectedImage } }]}
-          onSwipeDown={closeModal}
-          enableSwipeDown={true}
-        />
+      <Modal visible={isModalVisible} transparent animationType="fade">
+        <ImageViewer imageUrls={[selectedImage]} onSwipeDown={() => setIsModalVisible(false)} enableSwipeDown />
       </Modal>
     </View>
   );
 };
 
-
 export default AllProductsComponents;
+
 
 const styles = StyleSheet.create({
   container: {
