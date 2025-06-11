@@ -16,7 +16,7 @@ const WelcomeScreen = () => {
   const router = useRouter();
 
   return (
-    <TouchableWithoutFeedback onPress={() => router.push("/LoginSignUp")}>
+    <TouchableWithoutFeedback onPress={() => router.push("/(Tab)")}>
       <View style={styles.container}>
         {/* Top section with background */}
         <View style={styles.topSection}>
