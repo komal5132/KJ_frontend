@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "667490604672",
+    "project_id": "kjewell-6d265",
+    "storage_bucket": "kjewell-6d265.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:667490604672:android:129a4f8ea1200a3d27f865",
+        "android_client_info": {
+          "package_name": "com.satyaanshsoftech.kjewell.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClBvp4i2QQAuxCOMwp7x6-T2-u2YMlbV8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

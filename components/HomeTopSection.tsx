@@ -1,21 +1,29 @@
-import React from "react";
-import {
-  Image,
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type prop = {
-  name: string;
-};
-
-const HomeTopSection: React.FC<prop> = ({ name }) => {
+const HomeTopSection = () => {
   const router = useRouter();
+  const [name, setName] = useState("");
+
+  useEffect(() => {
+    const getUsername = async () => {
+      try {
+        const storedName = await AsyncStorage.getItem("username");
+        console.log("Fetched name:", storedName);
+        if (storedName) {
+          setName(storedName);
+        }
+      } catch (error) {
+        console.log("Failed to load username:", error);
+      }
+    };
+
+    getUsername();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.topMostSection}>
@@ -54,6 +62,8 @@ const HomeTopSection: React.FC<prop> = ({ name }) => {
     </View>
   );
 };
+
+export default HomeTopSection;
 
 const styles = StyleSheet.create({
   container: {
@@ -108,4 +118,15 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeTopSection;
+//<TouchableOpacity
+//   onPress={async () => {
+//     await AsyncStorage.removeItem("user_registered");
+//     await AsyncStorage.removeItem("username");
+//     router.replace('/LoginSignUp')
+//   }}
+//   style={{ padding: 10, backgroundColor: "tomato", marginTop: 20 }}
+// >
+//   <Text style={{ color: "white", textAlign: "center" }}>
+//     Reset & Register Again
+//   </Text>
+// </TouchableOpacity>

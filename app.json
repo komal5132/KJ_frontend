@@ -12,6 +12,8 @@
       "supportsTablet": true
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
+      "package": "com.satyaanshsoftech.kjewell.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/kartikjlogo.png",
         "backgroundColor": "#ffffff"
@@ -37,6 +39,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8054c71a-36a3-44e0-bd27-ebc0e65adbc7"
+      }
     }
   }
 }
