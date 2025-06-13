@@ -14,8 +14,7 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
+import axios from 'axios';
 import { useRouter } from 'expo-router';
 
 const { height } = Dimensions.get('window');
@@ -46,22 +45,27 @@ const LoginSignupscreen = () => {
       return;
     }
 
-    const newUser = {
+    const payload = {
       name: name.trim(),
       gender: gender.trim(),
-      mobile: mobile.trim(),
-      createdAt: new Date(),
+      mobileNum: mobile.trim(),
     };
 
     try {
-      await addDoc(collection(db, 'users'), newUser);
+      const response = await axios.post('http://192.168.31.4:8000/api/user/registerUser', payload);
+      const result = response.data;
+
       await AsyncStorage.setItem('user_registered', 'true');
-      await AsyncStorage.setItem('username', newUser.name);
-      console.log('Saved username:', newUser.name);
+      await AsyncStorage.setItem('username', result.user.name);
+      if (result.token) {
+        await AsyncStorage.setItem('token', result.token); // Optional
+      }
+
+      console.log('Saved user:', result.user.name);
       router.replace('/(Tab)');
-    } catch (error) {
-      console.error('Error saving user:', error);
-      Alert.alert('Something went wrong while saving your data.');
+    } catch (error : any) {
+      console.error('API error:', error.response?.data || error.message);
+      Alert.alert('Error', error.response?.data?.message || 'Failed to connect to server.');
     }
   };
 
