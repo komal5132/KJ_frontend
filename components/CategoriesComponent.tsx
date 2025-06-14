@@ -38,13 +38,12 @@ const CategoriesComponent: React.FC<Props> = ({ selectedCategory, onCategorySele
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.post('http://192.168.31.4:8000/api/product/getcategory')
-        console.log("res from backend",res.data.categories)        
+        const res = await axios.post('http://192.168.31.4:8000/api/product/getcategory')              
         setCategories(res.data.categories || [])            
       } catch (error) {
         console.error('Failed to fetch categories:', error)
       }
-      finally{
+      finally{  
         setLoading(false)
       }
     }

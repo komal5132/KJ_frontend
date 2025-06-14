@@ -11,9 +11,10 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import ImageViewer from "react-native-image-zoom-viewer";
 
-const BACKEND_URL = "http://192.168.31.4:8000"; // Use your local IP or ngrok if needed
+const BACKEND_URL = "http://192.168.31.4:8000"; // Your backend IP
 
 const AllProductsComponents = ({ selectedCategory }) => {
   const [products, setProducts] = useState([]);
@@ -21,41 +22,85 @@ const AllProductsComponents = ({ selectedCategory }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Fetch products and user favorites
   useEffect(() => {
-  const fetchProducts = async () => {
-    setLoading(true); // optional: show loader when category changes
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const userId = await AsyncStorage.getItem("userId");
+
+        const res = await axios.post(`${BACKEND_URL}/api/product/listofproducts`);
+        let productsData = res.data.products || [];
+
+        console.log("user id",userId)
+        if (userId) {
+          const favRes = await axios.post(`${BACKEND_URL}/api/user/getFavorites`, {
+            userId,
+          });          
+
+          const favoriteCodes = favRes.data.favorites || [];
+
+          // Mark favorite products
+          productsData = productsData.map((item) => ({
+            ...item,
+            isFavorite: favoriteCodes.includes(item.code),
+          }));
+        }
+
+        setProducts(productsData);
+      } catch (err) {
+        console.error("Error fetching products or favorites:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedCategory]);
+  
+
+  // Toggle favorite product
+  const toggleFavorite = async (productCode) => {
+    
     try {
-      const res = await axios.post(`${BACKEND_URL}/api/product/listofproducts`);
-      console.log("data of products", res.data);
-      setProducts(res.data.products || []);
+      const userId = await AsyncStorage.getItem("userId");
+      console.log("stored userid",userId)
+
+      if (!userId) {
+        console.warn("User ID not found in AsyncStorage");
+        return;
+      }
+
+      const res = await axios.post(`${BACKEND_URL}/api/user/favProduct`, {
+        userId,
+        productCode,
+      });
+
+      const updatedFavorites = res.data.favorites;
+
+      // Update product list with new favorite status
+      const updatedProducts = products.map((p) =>
+        p.code === productCode
+          ? { ...p, isFavorite: updatedFavorites.includes(p.code) }
+          : p
+      );
+
+      setProducts(updatedProducts);
     } catch (err) {
-      console.error("Error fetching products:", err);
-    } finally {
-      setLoading(false);
+      console.error("Error toggling favorite:", err);
     }
   };
 
-  fetchProducts();
-  console.log("selected prodcuts",selectedCategory)
-}, [selectedCategory]); // ✅ Re-fetch on category change
-
+  // Filter based on category
+  const filteredProducts =
+    selectedCategory === "All"
+      ? products
+      : products.filter((p) => p.category === selectedCategory);
 
   const openModal = (imageUri) => {
     setSelectedImage({ url: imageUri });
     setIsModalVisible(true);
   };
-
-  const toggleFavorite = (id) => {
-    const updated = products.map((p) =>
-      p._id === id ? { ...p, isFavorite: !p.isFavorite } : p
-    );
-    setProducts(updated);
-  };
-
-  const filteredProducts =
-    selectedCategory === "All"
-      ? products
-      : products.filter((p) => p.category === selectedCategory);
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
@@ -75,7 +120,7 @@ const AllProductsComponents = ({ selectedCategory }) => {
       </View>
       <View style={styles.footer}>
         <Text style={styles.name}>{item.name}</Text>
-        <TouchableOpacity onPress={() => toggleFavorite(item._id)}>
+        <TouchableOpacity onPress={() => toggleFavorite(item.code)}>
           <Ionicons
             name={item.isFavorite ? "heart" : "heart-outline"}
             size={20}
@@ -100,14 +145,17 @@ const AllProductsComponents = ({ selectedCategory }) => {
         contentContainerStyle={styles.container}
       />
       <Modal visible={isModalVisible} transparent animationType="fade">
-        <ImageViewer imageUrls={[selectedImage]} onSwipeDown={() => setIsModalVisible(false)} enableSwipeDown />
+        <ImageViewer
+          imageUrls={[selectedImage]}
+          onSwipeDown={() => setIsModalVisible(false)}
+          enableSwipeDown
+        />
       </Modal>
     </View>
   );
 };
 
 export default AllProductsComponents;
-
 
 const styles = StyleSheet.create({
   container: {

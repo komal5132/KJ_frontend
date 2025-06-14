@@ -57,11 +57,11 @@ const LoginSignupscreen = () => {
 
       await AsyncStorage.setItem('user_registered', 'true');
       await AsyncStorage.setItem('username', result.user.name);
+      await AsyncStorage.setItem("userId", response.data.user._id);
       if (result.token) {
         await AsyncStorage.setItem('token', result.token); // Optional
       }
 
-      console.log('Saved user:', result.user.name);
       router.replace('/(Tab)');
     } catch (error : any) {
       console.error('API error:', error.response?.data || error.message);

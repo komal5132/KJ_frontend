@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,79 +8,74 @@ import {
   FlatList,
   Dimensions,
   Modal,
-  Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import ImageViewer from "react-native-image-zoom-viewer";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
-const newProductData = [
-  {
-    id: 6,
-    productImage: require("../assets/images/trending6.jpg"),
-    productText: "Gold Earring",
-    isFavorite: false,
-    ProductId: "BA7",
-    Productcategory:""
-  },
-  {
-    id: 4,
-    productImage: require("../assets/images/trending4.jpg"),
-    productText: "Gold Ring",
-    isFavorite: false,
-    ProductId: "BA7",
-    Productcategory:""
-  },
-  {
-    id: 1,
-    productImage: require("../assets/images/trending88.png"),
-    productText: "Gold Bangle",
-    isFavorite: false,
-    ProductId: "BA7",
-    Productcategory:""
-  },
-  {
-    id: 5,
-    productImage: require("../assets/images/trending3avif.png"),
-    productText: "Gold Ring",
-    isFavorite: false,
-    ProductId: "BA7",
-    Productcategory:""
-  },
-  {
-    id: 8,
-    productImage: require("../assets/images/trending1.jpg"),
-    productText: "Gold Necklace",
-    isFavorite: false,
-    ProductId: "BA7",
-    Productcategory:""
-  },
-  {
-    id: 2,
-    productImage: require("../assets/images/trending5.jpg"),
-    productText: "Gold Earring",
-    isFavorite: false,
-    ProductId: "BA7",
-    Productcategory:""
-  },
-  {
-    id: 7,
-    productImage: require("../assets/images/trending7.png"),
-    productText: "Gold Bangle",
-    isFavorite: false,
-    ProductId: "BA7",
-    Productcategory:""
-  },
-];
 const screenWidth = Dimensions.get("window").width;
 const imageWidth = screenWidth * 0.45;
 
-const NewProducts: React.FC = () => {
-  const [trendingData, setTrendingData] = useState(newProductData);
-  const [selectedImage, setSelectedImage] = useState<any>(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+type Product = {
+  image: string;
+  name: string;
+  code: string;
+  category: string;
+  description: string;
+  isFavorite: boolean;
+  productImage: { uri: string };
+  productText: string;
+  ProductId: string;
+};
 
-  const openModal = (productImage: any) => {
-    setSelectedImage(productImage);
+const BaseUrl = "http://192.168.31.4:8000"
+
+const NewProducts = () => {
+  const [newArrivals, setnewArrivals] = useState<Product[]>([]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const id = await AsyncStorage.getItem("userId");
+        setUserId(id);
+
+        const productsRes = await axios.post(
+          `${BaseUrl}/api/product/listofproducts?productType=new`
+        );
+        const products = productsRes.data.products;
+        console.log("these are trending products", products);
+
+        const favRes = await axios.post(
+          `${BaseUrl}/api/user/getFavorites`,
+          {
+            userId: id,
+          }
+        );
+        const likedProductIds = favRes.data.favorites; // Example: ['BA7', 'RI5']
+
+        const formattedProducts = products.map((item: any) => ({
+          ...item,
+          isFavorite: likedProductIds.includes(item.code),
+          productImage: { uri: `${BaseUrl}/image/${item.image}` },
+          productText: item.name,
+          ProductId: item.code,
+        }));
+
+        setnewArrivals(formattedProducts);
+      } catch (error) {
+        console.error("Error loading trending products:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const openModal = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
     setIsModalVisible(true);
   };
 
@@ -89,17 +84,28 @@ const NewProducts: React.FC = () => {
     setIsModalVisible(false);
   };
 
-  const toggleHeart = (id: number) => {
-    const updatedData = trendingData.map((item: any) =>
-      item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
-    );
-    setTrendingData(updatedData);
+  const toggleHeart = async (code: string) => {
+    try {
+      const updatedData = newArrivals.map((item) =>
+        item.code === code ? { ...item, isFavorite: !item.isFavorite } : item
+      );
+      setnewArrivals(updatedData);
+
+      console.log("code =", code, "userid", userId);
+
+      await axios.post("http://192.168.31.4:8000/api/user/favProduct", {
+        userId,
+        productCode: code,
+      });
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
   };
 
-  const handleRender = ({ item }: { item: (typeof newProductData)[0] }) => {
+  const handleRender = ({ item }: { item: Product }) => {
     return (
       <View style={styles.productWrapper}>
-        <TouchableOpacity onPress={() => openModal(item.productImage)}>
+        <TouchableOpacity onPress={() => openModal(item.productImage.uri)}>
           <View style={styles.imageContainer}>
             <Image source={item.productImage} style={styles.image} />
             {item.isFavorite && (
@@ -109,7 +115,7 @@ const NewProducts: React.FC = () => {
             )}
             <TouchableOpacity
               style={styles.heartIcon}
-              onPress={() => toggleHeart(item.id)}
+              onPress={() => toggleHeart(item.code)}
             >
               <Ionicons
                 name={item.isFavorite ? "heart" : "heart-outline"}
@@ -126,7 +132,6 @@ const NewProducts: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Modal for enlarged image */}
       <Modal
         visible={isModalVisible}
         transparent={true}
@@ -135,7 +140,7 @@ const NewProducts: React.FC = () => {
       >
         {selectedImage && (
           <ImageViewer
-            imageUrls={[{ url: "", props: { source: selectedImage } }]}
+            imageUrls={[{ url: selectedImage }]}
             onSwipeDown={closeModal}
             enableSwipeDown={true}
           />
@@ -147,9 +152,9 @@ const NewProducts: React.FC = () => {
       </View>
 
       <FlatList
-        data={trendingData}
+        data={newArrivals}
         renderItem={handleRender}
-        keyExtractor={(item) => `${item.id}`}
+        keyExtractor={(item) => item.code}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.flatListContainer}
@@ -163,7 +168,6 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     backgroundColor: "#fff",
-    paddingVertical: 12,
   },
   header: {
     flexDirection: "row",
@@ -173,11 +177,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "bold",
-  },
-  seeAll: {
-    fontSize: 14,
-    color: "green",
-    fontWeight: "600",
   },
   flatListContainer: {
     gap: 12,
@@ -208,22 +207,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#000",
-  },
-  brandText: {
-    fontSize: 12,
-    color: "#666",
-  },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.9)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  fullImage: {
-    width: "90%",
-    height: "60%",
-    resizeMode: "contain",
-    borderRadius: 12,
   },
   productIdBadge: {
     position: "absolute",

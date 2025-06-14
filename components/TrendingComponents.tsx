@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,69 +11,71 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import ImageViewer from "react-native-image-zoom-viewer";
-
-const initialTrendingData = [
-  {
-    id: 1,
-    productImage: require("../assets/images/trending88.png"),
-    productText: "Gold Bangle",
-    isFavorite: false,
-    ProductId:'BA7'
-  },
-  {
-    id: 5,
-    productImage: require("../assets/images/trending3avif.png"),
-    productText: "Gold Ring",
-    isFavorite: false,
-    ProductId:'RI5'
-  },
-  {
-    id: 8,
-    productImage: require("../assets/images/trending1.jpg"),
-    productText: "Gold Necklace",
-    isFavorite: false,
-    ProductId:'NC5'
-  },
-  {
-    id: 4,
-    productImage: require("../assets/images/trending4.jpg"),
-    productText: "Gold Ring",
-    isFavorite: false,
-    ProductId:'RI6'
-  },
-  {
-    id: 2,
-    productImage: require("../assets/images/trending5.jpg"),
-    productText: "Gold Earring",
-    isFavorite: false,
-    ProductId:'ER6'
-  },
-  {
-    id: 6,
-    productImage: require("../assets/images/trending6.jpg"),
-    productText: "Gold Earring",
-    isFavorite: false,
-    ProductId:'ER7'
-  },
-  {
-    id: 7,
-    productImage: require("../assets/images/trending7.png"),
-    productText: "Gold Bangle",
-    isFavorite: false,
-    ProductId:'BA8'
-  },
-];
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 const screenWidth = Dimensions.get("window").width;
 const imageWidth = screenWidth * 0.45;
 
-const TrendingComponents = () => {
-  const [trendingData, setTrendingData] = useState(initialTrendingData);
-  const [selectedImage, setSelectedImage] = useState<any>(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+type Product = {
+  image: string;
+  name: string;
+  code: string;
+  category: string;
+  description: string;
+  isFavorite: boolean;
+  productImage: { uri: string };
+  productText: string;
+  ProductId: string;
+};
 
-  const openModal = (productImage: any) => {
-    setSelectedImage(productImage);
+const BaseUrl = "http://192.168.31.4:8000"
+
+const TrendingComponents = () => {
+  const [trendingData, setTrendingData] = useState<Product[]>([]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const id = await AsyncStorage.getItem("userId");
+        setUserId(id);
+
+        const productsRes = await axios.post(
+          `${BaseUrl}/api/product/listofproducts?productType=trending`
+        );
+        const products = productsRes.data.products;
+        console.log("these are trending products", products);
+
+        const favRes = await axios.post(
+          `${BaseUrl}/api/user/getFavorites`,
+          {
+            userId: id,
+          }
+        );
+        const likedProductIds = favRes.data.favorites; // Example: ['BA7', 'RI5']
+
+        const formattedProducts = products.map((item: any) => ({
+          ...item,
+          isFavorite: likedProductIds.includes(item.code),
+          productImage: { uri: `${BaseUrl}/image/${item.image}` },
+          productText: item.name,
+          ProductId: item.code,
+        }));
+
+        setTrendingData(formattedProducts);
+      } catch (error) {
+        console.error("Error loading trending products:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const openModal = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
     setIsModalVisible(true);
   };
 
@@ -82,27 +84,38 @@ const TrendingComponents = () => {
     setIsModalVisible(false);
   };
 
-  const toggleHeart = (id: number) => {
-    const updatedData = trendingData.map((item) =>
-      item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
-    );
-    setTrendingData(updatedData);
+  const toggleHeart = async (code: string) => {
+    try {
+      const updatedData = trendingData.map((item) =>
+        item.code === code ? { ...item, isFavorite: !item.isFavorite } : item
+      );
+      setTrendingData(updatedData);
+
+      console.log("code =", code, "userid", userId);
+
+      await axios.post(`${BaseUrl}/api/user/favProduct`, {
+        userId,
+        productCode: code,
+      });
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
   };
 
-  const handleRender = ({ item }: { item: typeof trendingData[0] }) => {
+  const handleRender = ({ item }: { item: Product }) => {
     return (
       <View style={styles.productWrapper}>
-        <TouchableOpacity onPress={() => openModal(item.productImage)}>
+        <TouchableOpacity onPress={() => openModal(item.productImage.uri)}>
           <View style={styles.imageContainer}>
             <Image source={item.productImage} style={styles.image} />
             {item.isFavorite && (
-            <View style={styles.productIdBadge}>
-              <Text style={styles.productIdText}>{item.ProductId}</Text>
-            </View>
-          )}
+              <View style={styles.productIdBadge}>
+                <Text style={styles.productIdText}>{item.ProductId}</Text>
+              </View>
+            )}
             <TouchableOpacity
               style={styles.heartIcon}
-              onPress={() => toggleHeart(item.id)}
+              onPress={() => toggleHeart(item.code)}
             >
               <Ionicons
                 name={item.isFavorite ? "heart" : "heart-outline"}
@@ -127,7 +140,7 @@ const TrendingComponents = () => {
       >
         {selectedImage && (
           <ImageViewer
-            imageUrls={[{ url: "", props: { source: selectedImage } }]}
+            imageUrls={[{ url: selectedImage }]}
             onSwipeDown={closeModal}
             enableSwipeDown={true}
           />
@@ -141,7 +154,7 @@ const TrendingComponents = () => {
       <FlatList
         data={trendingData}
         renderItem={handleRender}
-        keyExtractor={(item) => `${item.id}`}
+        keyExtractor={(item) => item.code}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.flatListContainer}
