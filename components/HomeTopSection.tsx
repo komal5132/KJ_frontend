@@ -56,6 +56,7 @@ const HomeTopSection = () => {
             size={20}
             color="#265341"
             style={styles.filterIcon}
+            onPress={()=>router.push('/Search')}
           />
         </TouchableOpacity>
       </TouchableOpacity>
