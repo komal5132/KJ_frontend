@@ -13,8 +13,7 @@ const Products = () => {
     if (categoryParam && typeof categoryParam === 'string') {
       setSelectedCategory(categoryParam);
     }
-  }, [categoryParam]);
-  
+  }, [categoryParam]);  
 
   return (
     <View style={{ top: 40, flex: 1 }}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Dimensions,
@@ -11,27 +11,27 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import { useRouter } from 'expo-router';
+} from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { useRouter } from "expo-router";
 
-const { height } = Dimensions.get('window');
+const { height } = Dimensions.get("window");
 
 const LoginSignupscreen = () => {
-  const [name, setName] = useState('');
-  const [gender, setGender] = useState('');
-  const [mobile, setMobile] = useState('');
+  const [name, setName] = useState("");
+  const [gender, setGender] = useState("");
+  const [mobile, setMobile] = useState("");
   const [showForm, setShowForm] = useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
     const checkRegistered = async () => {
-      const value = await AsyncStorage.getItem('user_registered');
-      if (value === 'true') {
-        router.replace('/(Tab)');
+      const value = await AsyncStorage.getItem("user_registered");
+      if (value === "true") {
+        router.replace("/(Tab)");
       } else {
         setShowForm(true);
       }
@@ -41,7 +41,7 @@ const LoginSignupscreen = () => {
 
   const handleContinue = async () => {
     if (!name.trim() || !gender.trim() || mobile.trim().length !== 10) {
-      Alert.alert('Please fill in all fields correctly before continuing.');
+      Alert.alert("Please fill in all fields correctly before continuing.");
       return;
     }
 
@@ -52,20 +52,26 @@ const LoginSignupscreen = () => {
     };
 
     try {
-      const response = await axios.post('http://192.168.31.4:8000/api/user/registerUser', payload);
+      const response = await axios.post(
+        "http://192.168.31.4:8000/api/user/registerUser",
+        payload
+      );
       const result = response.data;
 
-      await AsyncStorage.setItem('user_registered', 'true');
-      await AsyncStorage.setItem('username', result.user.name);
+      await AsyncStorage.setItem("user_registered", "true");
+      await AsyncStorage.setItem("username", result.user.name);
       await AsyncStorage.setItem("userId", response.data.user._id);
       if (result.token) {
-        await AsyncStorage.setItem('token', result.token); // Optional
+        await AsyncStorage.setItem("token", result.token); // Optional
       }
 
-      router.replace('/(Tab)');
-    } catch (error : any) {
-      console.error('API error:', error.response?.data || error.message);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to connect to server.');
+      router.replace("/(Tab)");
+    } catch (error: any) {
+      console.error("API error:", error.response?.data || error.message);
+      Alert.alert(
+        "Error",
+        error.response?.data?.message || "Failed to connect to server."
+      );
     }
   };
 
@@ -75,13 +81,13 @@ const LoginSignupscreen = () => {
     <ScrollView style={styles.container}>
       <StatusBar barStyle="light-content" />
       <ImageBackground
-        source={require('../assets/images/loginBG.png')}
+        source={require("../assets/images/loginBG.png")}
         style={styles.topSection}
         resizeMode="cover"
       >
         <Image
           style={{ width: 60, height: 60, top: -135, right: 150 }}
-          source={require('../assets/images/kartikjlogo.png')}
+          source={require("../assets/images/kartikjlogo.png")}
         />
         <Text style={styles.welcomeText}>Welcome to your jewellery world</Text>
       </ImageBackground>
@@ -126,7 +132,7 @@ const LoginSignupscreen = () => {
             keyboardType="number-pad"
             value={mobile}
             onChangeText={(text) => {
-              const onlyNums = text.replace(/[^0-9]/g, '');
+              const onlyNums = text.replace(/[^0-9]/g, "");
               if (onlyNums.length <= 10) {
                 setMobile(onlyNums);
               }
@@ -138,6 +144,10 @@ const LoginSignupscreen = () => {
         <TouchableOpacity style={styles.button} onPress={handleContinue}>
           <Text style={styles.buttonText}>✨ Continue</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={()=>router.push('/(Admin)/AdminHome')}>
+          <Text style={styles.buttonText}>✨ Admin panel</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -148,25 +158,25 @@ export default LoginSignupscreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3d4b6',
+    backgroundColor: "#f3d4b6",
   },
   topSection: {
     height: height * 0.45,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingTop: 60,
   },
   welcomeText: {
     fontSize: 22,
-    fontWeight: '700',
-    color: '#fff',
-    textAlign: 'center',
+    fontWeight: "700",
+    color: "#fff",
+    textAlign: "center",
     paddingHorizontal: 30,
     top: -50,
   },
   bottomSection: {
     flex: 1,
-    backgroundColor: '#fff8f2',
+    backgroundColor: "#fff8f2",
     borderTopLeftRadius: 80,
     borderTopRightRadius: 80,
     paddingHorizontal: 30,
@@ -176,25 +186,25 @@ const styles = StyleSheet.create({
   },
   formTitle: {
     fontSize: 22,
-    fontWeight: '700',
-    color: '#4b2e2e',
-    textAlign: 'center',
+    fontWeight: "700",
+    color: "#4b2e2e",
+    textAlign: "center",
     marginBottom: 30,
   },
   label: {
     fontSize: 15,
-    fontWeight: '600',
-    color: '#4b2e2e',
+    fontWeight: "600",
+    color: "#4b2e2e",
     marginBottom: 8,
   },
   input: {
     height: 48,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#f9f1eb',
+    borderColor: "#ddd",
+    backgroundColor: "#f9f1eb",
     paddingHorizontal: 15,
-    color: '#4b2e2e',
+    color: "#4b2e2e",
     fontSize: 15,
     marginBottom: 15,
   },
@@ -202,29 +212,29 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    backgroundColor: '#4b2e2e',
+    backgroundColor: "#4b2e2e",
     borderRadius: 10,
     paddingVertical: 14,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
   buttonText: {
-    color: '#fff8f2',
+    color: "#fff8f2",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   pickerWrapper: {
     height: 48,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#f9f1eb',
-    justifyContent: 'center',
+    borderColor: "#ddd",
+    backgroundColor: "#f9f1eb",
+    justifyContent: "center",
     marginBottom: 15,
     paddingHorizontal: 10,
   },
   picker: {
-    color: '#4b2e2e',
+    color: "#4b2e2e",
     fontSize: 15,
   },
 });

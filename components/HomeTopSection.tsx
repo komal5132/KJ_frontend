@@ -56,9 +56,21 @@ const HomeTopSection = () => {
             size={20}
             color="#265341"
             style={styles.filterIcon}
-            onPress={()=>router.push('/Search')}
+            onPress={() => router.push("/Search")}
           />
         </TouchableOpacity>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={async () => {
+          await AsyncStorage.removeItem("user_registered");
+          await AsyncStorage.removeItem("username");
+          router.replace("/LoginSignUp");
+        }}
+        style={{ padding: 10, backgroundColor: "tomato", marginTop: 20 }}
+      >
+        <Text style={{ color: "white", textAlign: "center" }}>
+          Reset & Register Again
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -118,16 +130,3 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
 });
-
-//<TouchableOpacity
-//   onPress={async () => {
-//     await AsyncStorage.removeItem("user_registered");
-//     await AsyncStorage.removeItem("username");
-//     router.replace('/LoginSignUp')
-//   }}
-//   style={{ padding: 10, backgroundColor: "tomato", marginTop: 20 }}
-// >
-//   <Text style={{ color: "white", textAlign: "center" }}>
-//     Reset & Register Again
-//   </Text>
-// </TouchableOpacity>
