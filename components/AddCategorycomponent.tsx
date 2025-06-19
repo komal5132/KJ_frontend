@@ -17,7 +17,7 @@ import { useFonts } from "expo-font";
 
 const BACKEND_URL = "http://192.168.31.4:8000";
 
-const AddCategorycomponent = () => {
+const AddCategorycomponent = () => { 
   const [fontsLoaded] = useFonts({
     PlayfairBold: require("../assets/fonts/static/PlayfairDisplay-Bold.ttf"),
   });
@@ -67,18 +67,20 @@ const AddCategorycomponent = () => {
       type: "image/jpeg",
     } as any);
 
-    
-
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/product/addcategory`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        `${BACKEND_URL}/api/product/addcategory`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       if (response.status === 201) {
         Alert.alert("Success", "Category added successfully!");
-        setNewcategory({ name: "", image: null }); 
+        setNewcategory({ name: "", image: null });
       } else {
         Alert.alert("Error", response.data?.message || "Something went wrong.");
       }
@@ -89,10 +91,10 @@ const AddCategorycomponent = () => {
   };
   return (
     <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 20}
-        >
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 20}
+    >
       <Text style={[styles.heading, { marginTop: 20 }]}>Add New Category</Text>
       <View style={styles.form}>
         <TextInput

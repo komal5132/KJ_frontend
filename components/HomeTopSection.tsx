@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  Button,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -7,6 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const HomeTopSection = () => {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [showModal, setShowmodal] = useState(false);
 
   useEffect(() => {
     const getUsername = async () => {
@@ -24,6 +33,17 @@ const HomeTopSection = () => {
     getUsername();
   }, []);
 
+  const handleModal = () => {
+    setShowmodal(true);
+  };
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("user_registered");
+    await AsyncStorage.removeItem("username");
+    setShowmodal(false);
+    router.replace("/LoginSignUp");
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.topMostSection}>
@@ -31,11 +51,13 @@ const HomeTopSection = () => {
           <Text style={styles.greeting}>Welcome,</Text>
           <Text style={styles.name}>{name}</Text>
         </View>
-        <Image
-          source={require("../assets/images/kartikjlogo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <TouchableOpacity onPress={()=>setShowmodal(true)}>
+          <Image
+            source={require("../assets/images/kartikjlogo.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity
@@ -60,18 +82,26 @@ const HomeTopSection = () => {
           />
         </TouchableOpacity>
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={async () => {
-          await AsyncStorage.removeItem("user_registered");
-          await AsyncStorage.removeItem("username");
-          router.replace("/LoginSignUp");
-        }}
-        style={{ padding: 10, backgroundColor: "tomato", marginTop: 20 }}
-      >
-        <Text style={{ color: "white", textAlign: "center" }}>
-          Reset & Register Again
-        </Text>
-      </TouchableOpacity>
+       <Modal visible={showModal} transparent animationType="fade">
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalText}>Do you want to logout?</Text>
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Text style={styles.buttonText}>Logout</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setShowmodal(false)}
+            >
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
     </View>
   );
 };
@@ -128,5 +158,50 @@ const styles = StyleSheet.create({
   },
   filterIcon: {
     marginLeft: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 25,
+    width: "80%",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  modalText: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    gap: 15,
+  },
+  logoutButton: {
+    backgroundColor: "#d62828",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  cancelButton: {
+    backgroundColor: "#6c757d",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
   },
 });

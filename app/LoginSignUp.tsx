@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 const LoginSignUp = () => {
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1,marginTop:30 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 20} // Adjust if header exists
     >

@@ -15,6 +15,8 @@ import { useFonts } from "expo-font";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import { Picker } from "@react-native-picker/picker";
+import { Entypo, Feather, Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 const BACKEND_URL = "http://192.168.31.4:8000";
 
@@ -31,6 +33,7 @@ const AdminHome = () => {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState<{
     name: string;
@@ -43,7 +46,7 @@ const AdminHome = () => {
     code: "",
     category: "",
     productType: "",
-    image: null,
+    image: "",
   });
 
   const [fontsLoaded] = useFonts({
@@ -52,21 +55,19 @@ const AdminHome = () => {
 
   const modalScrollRef = useRef<ScrollView>(null);
 
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.post(`${BACKEND_URL}/api/product/listofproducts`);
+      let productsData = res.data.products || [];
+      setProducts(productsData);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.post(
-          `${BACKEND_URL}/api/product/listofproducts`
-        );
-        let productsData = res.data.products || [];
-        setProducts(productsData);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
@@ -180,22 +181,25 @@ const AdminHome = () => {
       if (res.data.success) {
         alert("Product updated");
 
+        const updatedImage = isImageChanged
+          ? res.data.updatedProduct?.image ?? selectedProduct.image
+          : selectedProduct.image;
+
         setProducts((prev: Product[]) =>
           prev.map((p) =>
             p._id === selectedProduct._id
               ? {
                   ...p,
-                name:formData.name,
-                code:formData.code,
-                category:formData.category,
-                productType:formData.productType,
-                  image: isImageChanged
-                    ? res.data.updatedProduct.image
-                    : p.image,
+                  name: formData.name,
+                  code: formData.code,
+                  category: formData.category,
+                  productType: formData.productType,
+                  image: updatedImage,
                 }
               : p
           )
         );
+        await fetchData()
         setEditModalVisible(false);
       } else {
         alert(res.data.message || "Update failed");
@@ -228,8 +232,44 @@ const AdminHome = () => {
 
   if (!fontsLoaded) return null;
 
+  const handleDelete = async () => {
+    if (!selectedProduct) {
+      console.warn("No product selected for deletion.");
+      return;
+    }
+
+    const pId = selectedProduct._id;
+
+    try {
+      const res = await axios.post(
+        `${BACKEND_URL}/api/product/removeproducts/${pId}`
+      );
+
+      if (res.data.success) {
+        alert("Product deleted");
+
+        // Remove the deleted product from the list
+        setProducts((prev: Product[]) =>
+          prev.filter((p) => p._id !== selectedProduct._id)
+        );
+
+        setEditModalVisible(false);
+        setSelectedProduct(null);
+      } else {
+        alert(res.data.message || "Deletion failed");
+      }
+    } catch (err) {
+      console.error("Delete error", err);
+      alert("Error deleting product");
+    }
+  };
+
   return (
     <View style={styles.container}>
+
+      <TouchableOpacity style={{marginLeft:10,marginTop:2}} onPress={()=>router.push('/LoginSignUp')}>
+        <Feather name="arrow-left-circle" size={25} color={"black"}/>
+      </TouchableOpacity>
       <Text style={styles.header}>All Products</Text>
 
       <FlatList
@@ -238,6 +278,12 @@ const AdminHome = () => {
         keyExtractor={(item) => item._id}
         contentContainerStyle={{ paddingBottom: 30 }}
         showsVerticalScrollIndicator={false}
+        refreshing={refreshing}
+        onRefresh={async()=>{
+          setRefreshing(true)
+          await fetchData()
+          setRefreshing(false)
+        }}
       />
 
       {editModalVisible && selectedProduct && (
@@ -327,6 +373,7 @@ const AdminHome = () => {
                       backgroundColor: "#9E0524",
                     },
                   ]}
+                  onPress={handleDelete}
                 >
                   <Text style={[[styles.saveText, { color: "white" }]]}>
                     Delete

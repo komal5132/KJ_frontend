@@ -1,7 +1,7 @@
 import { View, Text } from "react-native";
 import React from "react";
 import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
 const Admin = () => {
   return (
@@ -12,7 +12,7 @@ const Admin = () => {
           title: "Products",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" color={color} size={size} />
+             <MaterialCommunityIcons name="necklace" size={size} color={color} />
           ),
         }}
       />
@@ -22,7 +22,7 @@ const Admin = () => {
           title: "Add Products",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" color={color} size={size} />
+            <MaterialCommunityIcons name="card-plus" color={color} size={size} />
           ),
         }}
       />
