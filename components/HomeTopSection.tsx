@@ -85,7 +85,7 @@ const HomeTopSection = () => {
        <Modal visible={showModal} transparent animationType="fade">
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalText}>Do you want to logout?</Text>
+          <Text style={styles.modalText}>Do you want to logout...?</Text>
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
